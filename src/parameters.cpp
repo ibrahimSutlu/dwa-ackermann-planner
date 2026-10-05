@@ -7,7 +7,6 @@
 
 void DWAPlanner::load_params(void)
 {
-  // - A -
   local_nh_.param<double>("ANGLE_RESOLUTION", angle_resolution_, 0.087);
   local_nh_.param<double>("ANGLE_TO_GOAL_TH", angle_to_goal_th_, M_PI);
   // - F -
@@ -23,19 +22,19 @@ void DWAPlanner::load_params(void)
   local_nh_.param<double>("MAX_D_YAWRATE", max_d_yawrate_, 3.2);
   local_nh_.param<double>("MAX_IN_PLACE_YAWRATE", max_in_place_yawrate_, 0.6);
   local_nh_.param<double>("MAX_VELOCITY", max_velocity_, 1.0);
-  local_nh_.param<double>("MAX_YAWRATE", max_yawrate_, 1.0);
+  local_nh_.param<double>("MAX_YAWRATE", max_yawrate_, 2.0);
   local_nh_.param<double>("MIN_IN_PLACE_YAWRATE", min_in_place_yawrate_, 0.3);
   local_nh_.param<double>("MIN_VELOCITY", min_velocity_, 0.0);
-  local_nh_.param<double>("MIN_YAWRATE", min_yawrate_, 0.05);
+  local_nh_.param<double>("MIN_YAWRATE", min_yawrate_, 0.3);
   // - O -
-  local_nh_.param<double>("OBSTACLE_COST_GAIN", obs_cost_gain_, 1.0);
-  local_nh_.param<double>("OBS_RANGE", obs_range_, 2.5);
+  local_nh_.param<double>("OBSTACLE_COST_GAIN", obs_cost_gain_, 10.0);
+  local_nh_.param<double>("OBS_RANGE", obs_range_, 10.0);
   // - P -
-  local_nh_.param<double>("PATH_COST_GAIN", path_cost_gain_, 0.4);
+  local_nh_.param<double>("PATH_COST_GAIN", path_cost_gain_, 1.0);
   local_nh_.param<double>("PREDICT_TIME", predict_time_, 3.0);
   // - R -
   local_nh_.param<std::string>("ROBOT_FRAME", robot_frame_, std::string("base_link"));
-  local_nh_.param<double>("ROBOT_RADIUS", robot_radius_, 0.1);
+  local_nh_.param<double>("ROBOT_RADIUS", robot_radius_, 0.3);
   // - S -
   local_nh_.param<double>("SIM_DIRECTION", sim_direction_, M_PI / 2.0);
   local_nh_.param<double>("SIM_PERIOD", sim_period_, 0.1);
@@ -47,7 +46,7 @@ void DWAPlanner::load_params(void)
   // - T -
   local_nh_.param<double>("TARGET_VELOCITY", target_velocity_, 0.55);
   local_nh_.param<double>("TO_GOAL_COST_GAIN", to_goal_cost_gain_, 0.8);
-  local_nh_.param<double>("TURN_DIRECTION_THRESHOLD", turn_direction_th_, 0.1);
+  local_nh_.param<double>("TURN_DIRECTION_THRESHOLD", turn_direction_th_, 0.3);
   // - U -
   local_nh_.param<bool>("USE_FOOTPRINT", use_footprint_, false);
   local_nh_.param<bool>("USE_PATH_COST", use_path_cost_, false);
@@ -60,6 +59,7 @@ void DWAPlanner::load_params(void)
 
   target_velocity_ = std::min(target_velocity_, max_velocity_);
 }
+
 
 void DWAPlanner::print_params(void)
 {

@@ -16,7 +16,7 @@
     <arg name="use_scan_as_input" default="false"/>
     <!-- topic name -->
     <!-- published topics -->
-    <arg name="cmd_vel" default="/cmd_vel"/>
+    <arg name="cmd_vel" default="/ackermann_cmd"/>
     <!-- subscribed topics -->
     <arg name="local_map" default="/local_map"/>
     <arg name="local_goal" default="/move_base_simple/goal"/>

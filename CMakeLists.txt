@@ -8,8 +8,12 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
   tf
+  pcl_conversions
+  pcl_ros
+  ackermann_msgs
 )
 find_package(Eigen3 REQUIRED COMPONENTS system)
+find_package(PCL REQUIRED)
 
 ###################################
 ## catkin specific configuration ##
@@ -26,6 +30,7 @@ include_directories(
   include
   ${catkin_INCLUDE_DIRS}
   ${EIGEN3_INCLUDE_DIRS}
+  ${PCL_INCLUDE_DIRS} 
 )
 
 add_library(dwa_planner_lib
@@ -36,6 +41,7 @@ add_dependencies(dwa_planner_lib ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EX
 add_executable(dwa_planner src/dwa_planner_node.cpp)
 target_link_libraries(dwa_planner
   ${catkin_LIBRARIES}
+  ${PCL_LIBRARIES} 
   dwa_planner_lib
 )
 

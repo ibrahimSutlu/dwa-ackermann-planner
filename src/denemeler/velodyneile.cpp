@@ -28,7 +28,6 @@ DWAPlanner::DWAPlanner(void)
   selected_trajectory_pub_ = local_nh_.advertise<visualization_msgs::Marker>("selected_trajectory", 1);
   predict_footprints_pub_ = local_nh_.advertise<visualization_msgs::MarkerArray>("predict_footprints", 1);
   finish_flag_pub_ = local_nh_.advertise<std_msgs::Bool>("finish_flag", 1);
-  marker_pub_ = local_nh_.advertise<visualization_msgs::MarkerArray>("obstacle_markers", 10);
 
   dist_to_goal_th_sub_ = nh_.subscribe("/dist_to_goal_th", 1, &DWAPlanner::dist_to_goal_th_callback, this);
   edge_on_global_path_sub_ = nh_.subscribe("/path", 1, &DWAPlanner::edge_on_global_path_callback, this);
@@ -38,7 +37,7 @@ DWAPlanner::DWAPlanner(void)
   veriler = nh_.subscribe("/slam_out_pose", 1, &DWAPlanner::gpsDataCallback, this);
 
   odom_sub_ = nh_.subscribe("/odom", 1, &DWAPlanner::odom_callback, this);
-  // scan_sub_ = nh_.subscribe("/scan", 1, &DWAPlanner::scan_callback, this);
+  scan_sub_ = nh_.subscribe("/scan", 1, &DWAPlanner::scan_callback, this);
   velodyne_sub_ = nh_.subscribe("/velodyne_points", 1, &DWAPlanner::velodyne_callback, this);
 
   target_velocity_sub_ = nh_.subscribe("/target_velocity", 1, &DWAPlanner::target_velocity_callback, this);
@@ -148,17 +147,18 @@ void DWAPlanner::velodyne_callback(const sensor_msgs::PointCloud2ConstPtr &msg)
 }
 void DWAPlanner::create_obs_list_from_cloud(const pcl::PointCloud<pcl::PointXYZ> &cloud)
 {
+    obs_list_.poses.clear();
 
     // Yükseklik aralığını belirleyin (Örneğin, 0.2m - 1.5m arasındaki engelleri algıla)
-    const float min_height = 0.5;  // Araç seviyesinin altındaki noktaları filtreleme
+    const float min_height = -0.05;  // Araç seviyesinin altındaki noktaları filtreleme
     const float max_height = 10.0;   // Üst seviyedeki noktaları filtreleme
 
     // Maksimum mesafe eşiği belirleyin
     const float max_distance = 5.0;
 
     // FOV sınırlarını belirleyin (örneğin -15 ile 15 derece)
-    const float min_angle = -180.0 * M_PI / 180.0;  // -15 dereceyi radyan cinsine çevir
-    const float max_angle = 180.0 * M_PI / 180.0;   // 15 dereceyi radyan cinsine çevir
+    const float min_angle = -15.0 * M_PI / 180.0;  // -15 dereceyi radyan cinsine çevir
+    const float max_angle = 15.0 * M_PI / 180.0;   // 15 dereceyi radyan cinsine çevir
 
     for (const auto &point : cloud.points)
     {
@@ -191,40 +191,11 @@ void DWAPlanner::create_obs_list_from_cloud(const pcl::PointCloud<pcl::PointXYZ>
         pose.position.z = 0;
 
         obs_list_.poses.push_back(pose);
-        publishMarkers();
+        ROS_WARN_THROTTLE(1.0, "Obstacle at GPS: x=%.3f, y=%.3f", pose.position.x, pose.position.y);
+
     }
 }
 
-void DWAPlanner::publishMarkers()
-{
-    visualization_msgs::MarkerArray marker_array;
-
-    for (size_t i = 0; i < obs_list_.poses.size(); i++)
-    {
-        visualization_msgs::Marker marker;
-        marker.header.frame_id = "map";
-        marker.header.stamp = ros::Time::now();
-        marker.ns = "obstacles";
-        marker.id = i;
-        marker.type = visualization_msgs::Marker::SPHERE; // Küre olarak göster
-        marker.action = visualization_msgs::Marker::ADD;
-
-        marker.pose = obs_list_.poses[i]; // Pozisyon ve yön
-        marker.scale.x = 0.3;
-        marker.scale.y = 0.3;
-        marker.scale.z = 0.3;
-
-        marker.color.r = 1.0;
-        marker.color.g = 0.0;
-        marker.color.b = 0.0;
-        marker.color.a = 1.0;
-
-        marker.lifetime = ros::Duration();
-        marker_array.markers.push_back(marker);
-    }
-
-    marker_pub_.publish(marker_array);
-}
 void DWAPlanner::scan_callback(const sensor_msgs::LaserScanConstPtr &msg)
 {
 

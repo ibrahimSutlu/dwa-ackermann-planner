@@ -1,0 +1,8 @@
+.vscode/
+src/.vscode/
+src/denemeler/.vscode/
+__pycache__/
+*.pyc
+build/
+devel/
+logs/
